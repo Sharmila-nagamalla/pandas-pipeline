@@ -1,0 +1,176 @@
+import pandas as pd
+
+
+def cap_iqr_outliers(
+    df: pd.DataFrame,
+    column: str,
+    multiplier: float = 1.5
+) -> pd.DataFrame:
+
+    # Make a copy so the original DataFrame is not changed
+    df = df.copy()
+
+    # Calculate Q1
+    q1 = df[column].quantile(0.25)
+
+    # Calculate Q3
+    q3 = df[column].quantile(0.75)
+
+    # Calculate IQR
+    iqr = q3 - q1
+
+    # Calculate lower limit
+    lower = q1 - multiplier * iqr
+
+    # Calculate upper limit
+    upper = q3 + multiplier * iqr
+
+    # Cap extreme values
+    df[column] = df[column].clip(
+        lower=lower,
+        upper=upper
+    )
+
+    return df
+
+
+def clean_data(
+    df: pd.DataFrame
+) -> pd.DataFrame:
+
+    # Make a copy
+    df = df.copy()
+
+
+    # =========================================
+    # 1. REMOVE DUPLICATE ROWS
+    # =========================================
+
+    df = df.drop_duplicates()
+
+
+    # =========================================
+    # 2. CONVERT ORDER DATE
+    # =========================================
+
+    df["order_date"] = pd.to_datetime(
+        df["order_date"],
+        errors="coerce"
+    )
+
+
+    # =========================================
+    # 3. FILL MISSING REGION
+    # =========================================
+
+    df["region"] = df["region"].fillna(
+        "Unknown"
+    )
+
+
+    # =========================================
+    # 4. FILL MISSING PAYMENT METHOD
+    # =========================================
+
+    df["payment_method"] = df[
+        "payment_method"
+    ].fillna("Unknown")
+
+
+    # =========================================
+    # 5. FILL MISSING DISCOUNT
+    # =========================================
+
+    df["discount"] = df["discount"].fillna(
+        df["discount"].median()
+    )
+
+
+    # =========================================
+    # 6. REMOVE ROWS WITH IMPORTANT MISSING VALUES
+    # =========================================
+
+    df = df.dropna(
+        subset=[
+            "order_id",
+            "order_date",
+            "product",
+            "quantity",
+            "unit_price",
+            "revenue"
+        ]
+    )
+
+
+    # =========================================
+    # 7. CONVERT NUMERIC COLUMNS
+    # =========================================
+
+    numeric_columns = [
+        "quantity",
+        "unit_price",
+        "discount",
+        "revenue"
+    ]
+
+    for column in numeric_columns:
+
+        df[column] = pd.to_numeric(
+            df[column],
+            errors="coerce"
+        )
+
+
+    # =========================================
+    # 8. REMOVE ROWS WHERE NUMERIC VALUES
+    #    COULD NOT BE CONVERTED
+    # =========================================
+
+    df = df.dropna(
+        subset=numeric_columns
+    )
+
+
+    # =========================================
+    # 9. LIMIT DISCOUNT BETWEEN 0 AND 1
+    # =========================================
+
+    df["discount"] = df["discount"].clip(
+        0,
+        1
+    )
+
+
+    # =========================================
+    # 10. HANDLE QUANTITY OUTLIERS USING IQR
+    # =========================================
+
+    df = cap_iqr_outliers(
+        df,
+        "quantity"
+    )
+
+
+    # =========================================
+    # 11. SORT BY ORDER DATE
+    # =========================================
+
+    df = df.sort_values(
+        "order_date"
+    )
+
+
+    # =========================================
+    # 12. RESET INDEX
+    # =========================================
+
+    df = df.reset_index(
+        drop=True
+    )
+
+
+    # =========================================
+    # 13. RETURN CLEAN DATA
+    # =========================================
+
+    return df
