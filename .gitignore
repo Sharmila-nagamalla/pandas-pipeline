@@ -1,0 +1,91 @@
+# ==============================
+# Python
+# ==============================
+
+__pycache__/
+*.py[cod]
+*$py.class
+
+# ==============================
+# Virtual Environment
+# ==============================
+
+.venv/
+venv/
+env/
+ENV/
+
+# ==============================
+# Environment Variables / Secrets
+# ==============================
+
+.env
+.env.*
+!.env.example
+
+# ==============================
+# Jupyter Notebook
+# ==============================
+
+.ipynb_checkpoints/
+
+# ==============================
+# Data Files
+# ==============================
+
+# Ignore raw and processed data
+data/raw/
+data/processed/
+
+# Ignore CSV files
+*.csv
+
+# ==============================
+# Machine Learning Models
+# ==============================
+
+# Ignore generated trained models
+models/*.joblib
+models/*.pkl
+models/*.pickle
+
+# ==============================
+# Reports / Generated Outputs
+# ==============================
+
+# Ignore generated reports
+reports/*.json
+reports/*.csv
+
+# ==============================
+# Logs
+# ==============================
+
+*.log
+
+# ==============================
+# IDE / Editor
+# ==============================
+
+.vscode/
+.idea/
+
+# ==============================
+# Operating System
+# ==============================
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# macOS
+.DS_Store
+
+# ==============================
+# Temporary Files
+# ==============================
+
+*.tmp
+*.temp
+*.bak
